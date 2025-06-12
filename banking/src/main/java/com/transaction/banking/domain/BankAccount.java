@@ -18,7 +18,7 @@ import java.util.UUID;
 @NoArgsConstructor
 @AllArgsConstructor
 @Entity
-public class AccountBanking {
+public class BankAccount {
 
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
