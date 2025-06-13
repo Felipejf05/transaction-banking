@@ -17,11 +17,11 @@ import java.util.UUID;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-@Entity
+@Entity(name = "bank_account")
 public class BankAccount {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
+    @Column(name = "account_id", columnDefinition = "BINARY(16)", nullable = false, updatable = false)
     private UUID accountId;
 
     @Column(name = "holder_name")

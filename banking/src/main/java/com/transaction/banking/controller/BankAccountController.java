@@ -6,13 +6,13 @@ import com.transaction.banking.dto.response.BankAccountResponseList;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
-import io.swagger.v3.oas.annotations.parameters.RequestBody;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 
 import java.util.UUID;
@@ -29,13 +29,13 @@ public interface BankAccountController {
                     schema = @Schema(implementation = BankAccountResponseDTO.class)))
     @ApiResponse(responseCode = "400", description = "Erro de validação")
     ResponseEntity<BankAccountResponseDTO> createAccount(@Valid @RequestBody BankAccountRequestDTO bankAccountRequestDTO);
-    @GetMapping("/account/list")
+    @GetMapping("/list")
     @Operation(summary = "Retorma a lista de contas")
     @ApiResponse(responseCode = "200", description = "Lista de contas retornadas com sucesso",
             content = @Content(mediaType = APPLICATION_JSON_VALUE,
                     schema = @Schema(implementation = BankAccountResponseList.class)))
     ResponseEntity<BankAccountResponseList> getAccounts();
-    @GetMapping("/account/{id}")
+    @GetMapping("/{id}")
     @Operation(summary = "Retorna uma conta pelo ID")
     @ApiResponse(responseCode = "200", description = "Conta encontrada com sucesso",
             content = @Content(mediaType = APPLICATION_JSON_VALUE,

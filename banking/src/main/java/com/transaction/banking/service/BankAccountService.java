@@ -16,6 +16,9 @@ public class BankAccountService {
 
     private final BankAccountRepository bankAccountRepository;
         public BankAccount createAccount(BankAccount bankAccount){
+            if (bankAccount.getAccountId() == null) {
+                bankAccount.setAccountId(UUID.randomUUID());
+            }
                 log.info("Criando nova conta para o titular: {}", bankAccount.getHolderName());
             return bankAccountRepository.save(bankAccount);
         }

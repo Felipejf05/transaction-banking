@@ -9,7 +9,7 @@ import java.util.UUID;
 @Getter
 @Setter
 public class BankAccountResponseDTO {
-    private UUID accountId;
+    private String accountId;
     private String holderName;
     private BigDecimal amount;
 }

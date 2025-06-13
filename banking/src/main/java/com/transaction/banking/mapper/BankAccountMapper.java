@@ -14,36 +14,38 @@ import java.util.stream.Collectors;
 @Slf4j
 public class BankAccountMapper {
 
-    public BankAccount toBankAccount(BankAccountRequestDTO bankAccountRequestDTO){
-        if(bankAccountRequestDTO == null){
+    public BankAccount toBankAccount(BankAccountRequestDTO bankAccountRequestDTO) {
+        if (bankAccountRequestDTO == null) {
             return null;
         }
+
         BankAccount bankAccount = new BankAccount();
+
         bankAccount.setHolderName(bankAccountRequestDTO.getHolderName());
         bankAccount.setAmount(bankAccountRequestDTO.getAmount());
 
         return bankAccount;
     }
 
-    public BankAccountResponseDTO toResponseDTO(BankAccount bankAccount){
+    public BankAccountResponseDTO toResponseDTO(BankAccount bankAccount) {
         if (bankAccount == null) {
             return null;
         }
 
         BankAccountResponseDTO toDTO = new BankAccountResponseDTO();
-        toDTO.setAccountId(bankAccount.getAccountId());
+        toDTO.setAccountId(bankAccount.getAccountId().toString());
         toDTO.setHolderName(bankAccount.getHolderName());
         toDTO.setAmount(bankAccount.getAmount());
 
         return toDTO;
     }
 
-    public List<BankAccountResponseDTO> toResponseDTOList(List<BankAccount> accounts){
-            if(accounts == null || accounts.isEmpty()){
-                return Collections.emptyList();
-            }
-            return accounts.stream().filter(account -> account != null )
-                    .map(this::toResponseDTO)
-                    .collect(Collectors.toList());
+    public List<BankAccountResponseDTO> toResponseDTOList(List<BankAccount> accounts) {
+        if (accounts == null || accounts.isEmpty()) {
+            return Collections.emptyList();
+        }
+        return accounts.stream().filter(account -> account != null)
+                .map(this::toResponseDTO)
+                .collect(Collectors.toList());
     }
 }
