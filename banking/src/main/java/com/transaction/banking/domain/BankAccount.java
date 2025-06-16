@@ -1,9 +1,8 @@
 package com.transaction.banking.domain;
 
+import com.transaction.banking.exceptions.InsufficientFundsException;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -29,4 +28,14 @@ public class BankAccount {
 
     @Column(nullable = false)
     private BigDecimal amount;
+
+    public void debit(BigDecimal amount){
+        if(this.amount.compareTo(amount) < 0){
+            throw new InsufficientFundsException("Saldo Insulficiente");
+        }
+        this.amount = this.amount.subtract(amount);
+    }
+    public void credit(BigDecimal amount){
+        this.amount = this.amount.add(amount);
+    }
 }

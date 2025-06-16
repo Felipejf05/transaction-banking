@@ -11,4 +11,12 @@ public class GlobalExceptionHandler {
     public ResponseEntity<String> handleAccountNotFoundException(AccountNotFoundException e){
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
     }
+    @ExceptionHandler(TransactionValidationException.class)
+    public ResponseEntity<String>handleTransactionValidationException(TransactionValidationException e){
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
+    }
+    @ExceptionHandler(InsufficientFundsException.class)
+    public ResponseEntity<String>handleInsufficientFundsException(InsufficientFundsException e){
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
+    }
 }
