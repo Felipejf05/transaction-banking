@@ -11,31 +11,34 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.util.List;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 @RestController
 @RequiredArgsConstructor
 public class TransactionControllerImpl implements TransactionController {
 
-    private final TransactionMapper transactionMapper;
     private final TransactionService transactionService;
+    private final TransactionMapper transactionMapper;
+
     @Override
-    public ResponseEntity<TransactionResponseDTO> createTransaction(TransactionRequestDTO transactionRequestDTO) {
-        TransactionResponseDTO saveTransaction = transactionService.createTransaction(transactionRequestDTO);
-        return ResponseEntity.status(HttpStatus.CREATED).body(saveTransaction);
+    public ResponseEntity<TransactionResponseDTO> createTransaction(TransactionRequestDTO dto) {
+        var transaction = transactionService.createTransaction(dto);
+        return ResponseEntity.status(HttpStatus.CREATED).body(transactionMapper.toResponseDTO(transaction));
     }
 
     @Override
     public ResponseEntity<TransactionListResponse> getTransactions() {
-        List<TransactionResponseDTO> data = transactionService.getTransactions();
-        return ResponseEntity.ok(new TransactionListResponse(data));
+        var transactions = transactionService.getTransactions();
+        var responseList = transactions.stream()
+                .map(transactionMapper::toResponseDTO)
+                .collect(Collectors.toList());
+        return ResponseEntity.ok(new TransactionListResponse(responseList));
     }
 
     @Override
     public ResponseEntity<TransactionResponseDTO> getTransactionId(UUID id) {
-      TransactionResponseDTO dto = transactionService.getTransactionId(id);
-      return ResponseEntity.ok(dto);
-
+        var transaction = transactionService.getTransactionById(id);
+        return ResponseEntity.ok(transactionMapper.toResponseDTO(transaction));
     }
 }

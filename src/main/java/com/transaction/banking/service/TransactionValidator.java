@@ -11,12 +11,15 @@ import java.math.BigDecimal;
 @Component
 public class TransactionValidator {
 
-    public void validateForTransfer(Transaction transaction, BankAccount from, BankAccount to) {
-        if (transaction.getAmount() == null || transaction.getAmount().compareTo(BigDecimal.ZERO) <= 0) {
+    public void validateForTransfer(BankAccount from, BankAccount to, BigDecimal amount) {
+        if (amount == null || amount.compareTo(BigDecimal.ZERO) <= 0) {
             throw new TransactionValidationException("O valor da transferência deve ser maior que zero");
         }
         if (from.getAccountId().equals(to.getAccountId())) {
             throw new TransactionValidationException("Conta de origem e destino devem ser diferentes");
+        }
+        if (from.getAmount().compareTo(amount) < 0) {
+            throw new TransactionValidationException("Saldo insuficiente para realizar a transferência");
         }
     }
 
