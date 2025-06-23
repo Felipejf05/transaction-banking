@@ -16,12 +16,8 @@ import java.util.UUID;
 public class BankAccountService {
 
     private final BankAccountRepository bankAccountRepository;
-
-    public BankAccount createAccount(BankAccount account) {
-        if (account.getAccountId() == null) {
-            account.setAccountId(UUID.randomUUID());
-        }
-        log.info("Criando nova conta para o titular: {}", account.getHolderName());
+    public BankAccount save(BankAccount account) {
+        log.info("Salvando conta ID: {}, Titular: {}", account.getAccountId(), account.getHolderName());
         return bankAccountRepository.save(account);
     }
 
@@ -36,8 +32,4 @@ public class BankAccountService {
                 .orElseThrow(() -> new AccountNotFoundException("Conta não encontrada com o ID: " + idAccount));
     }
 
-    public BankAccount save(BankAccount account) {
-        log.info("Salvando atualização na conta ID: {}", account.getAccountId());
-        return bankAccountRepository.save(account);
-    }
 }

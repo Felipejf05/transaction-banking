@@ -26,7 +26,7 @@ public class BankAccountControllerImpl implements BankAccountController {
     @Override
     public ResponseEntity<BankAccountResponseDTO> createAccount(BankAccountRequestDTO bankAccountRequestDTO) {
         BankAccount account = bankAccountMapper.toBankAccount(bankAccountRequestDTO);
-        BankAccount savedAccount = bankAccountService.createAccount(account);
+        BankAccount savedAccount = bankAccountService.save(account);
         BankAccountResponseDTO responseDTO = bankAccountMapper.toResponseDTO(savedAccount);
         return ResponseEntity.status(HttpStatus.CREATED).body(responseDTO);
     }

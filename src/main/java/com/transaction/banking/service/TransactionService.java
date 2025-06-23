@@ -36,7 +36,6 @@ public class TransactionService {
         to.credit(dto.getAmount());
 
         var transaction = new Transaction();
-        transaction.setId(UUID.randomUUID());
         transaction.setFromAccountId(from.getAccountId());
         transaction.setToAccountId(to.getAccountId());
         transaction.setAmount(dto.getAmount());
