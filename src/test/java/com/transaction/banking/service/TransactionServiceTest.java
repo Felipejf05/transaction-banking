@@ -3,10 +3,8 @@ package com.transaction.banking.service;
 import com.transaction.banking.domain.BankAccount;
 import com.transaction.banking.domain.Transaction;
 import com.transaction.banking.dto.request.TransactionRequestDTO;
-import com.transaction.banking.dto.response.TransactionResponseDTO;
 import com.transaction.banking.enums.TransactionStatus;
 import com.transaction.banking.exceptions.TransactionValidationException;
-import com.transaction.banking.mapper.TransactionMapper;
 import com.transaction.banking.repository.TransactionRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -31,7 +29,6 @@ class TransactionServiceTest {
     private TransactionRepository transactionRepository;
     private TransactionValidator transactionValidator;
     private BankAccountService bankAccountService;
-    private TransactionMapper transactionMapper;
     private TransactionService transactionService;
 
     @BeforeEach
@@ -39,12 +36,10 @@ class TransactionServiceTest {
         transactionRepository = mock(TransactionRepository.class);
         transactionValidator = mock(TransactionValidator.class);
         bankAccountService = mock(BankAccountService.class);
-        transactionMapper = mock(TransactionMapper.class);
         transactionService = new TransactionService(
                 transactionRepository,
                 transactionValidator,
-                bankAccountService,
-                transactionMapper
+                bankAccountService
         );
     }
 
@@ -64,12 +59,6 @@ class TransactionServiceTest {
         BankAccount fromAccount = new BankAccount(fromAccountId, "Cliente A", new BigDecimal("500.00"));
         BankAccount toAccount = new BankAccount(toAccountId, "Cliente B", new BigDecimal("300.00"));
 
-        Transaction transaction = new Transaction();
-        transaction.setFromAccountId(fromAccountId);
-        transaction.setToAccountId(toAccountId);
-        transaction.setAmount(amount);
-        transaction.setTransactionStatus(TransactionStatus.PENDING);
-
         Transaction savedTransaction = new Transaction();
         savedTransaction.setId(UUID.randomUUID());
         savedTransaction.setFromAccountId(fromAccountId);
@@ -78,33 +67,24 @@ class TransactionServiceTest {
         savedTransaction.setTransactionStatus(TransactionStatus.COMPLETED);
         savedTransaction.setTimestamp(LocalDateTime.now());
 
-        TransactionResponseDTO responseDTO = new TransactionResponseDTO(
-                savedTransaction.getId().toString(),
-                fromAccountId.toString(),
-                toAccountId.toString(),
-                amount,
-                savedTransaction.getTimestamp()
-        );
-
         when(bankAccountService.getAccountById(fromAccountId)).thenReturn(fromAccount);
         when(bankAccountService.getAccountById(toAccountId)).thenReturn(toAccount);
-        when(transactionMapper.toTransaction(requestDTO)).thenReturn(transaction);
         when(transactionRepository.save(any(Transaction.class))).thenReturn(savedTransaction);
-        when(transactionMapper.doDTO(savedTransaction)).thenReturn(responseDTO);
 
         // Act
-        TransactionResponseDTO result = transactionService.createTransaction(requestDTO);
+        Transaction result = transactionService.createTransaction(requestDTO);
 
         // Assert
         assertNotNull(result);
-        assertEquals(responseDTO.getIdTransaction(), result.getIdTransaction());
+        assertEquals(savedTransaction.getId(), result.getId());
         assertEquals(amount, result.getAmount());
 
-        verify(transactionValidator).validateForTransfer(transaction, fromAccount, toAccount);
+        verify(transactionValidator).validateForTransfer(fromAccount, toAccount, amount);
         verify(bankAccountService, times(1)).save(fromAccount);
         verify(bankAccountService, times(1)).save(toAccount);
-        verify(transactionRepository, times(1)).save(transaction);
+        verify(transactionRepository, times(1)).save(any(Transaction.class));
     }
+
 
     @Test
     void testGetTransactions_ReturnList() {
@@ -116,25 +96,17 @@ class TransactionServiceTest {
         transaction.setToAccountId(UUID.randomUUID());
         transaction.setTimestamp(LocalDateTime.now());
 
-        TransactionResponseDTO dto = new TransactionResponseDTO(
-                transaction.getId().toString(),
-                transaction.getFromAccountId().toString(),
-                transaction.getToAccountId().toString(),
-                transaction.getAmount(),
-                transaction.getTimestamp()
-        );
-
         when(transactionRepository.findAll()).thenReturn(List.of(transaction));
-        when(transactionMapper.doDTO(transaction)).thenReturn(dto);
 
         // Act
-        List<TransactionResponseDTO> result = transactionService.getTransactions();
+        List<Transaction> result = transactionService.getTransactions();
 
         // Assert
         assertNotNull(result);
         assertEquals(1, result.size());
-        assertEquals(dto.getIdTransaction(), result.get(0).getIdTransaction());
+        assertEquals(transaction.getId(), result.get(0).getId());
     }
+
 
     @Test
     void testGetTransactionById_Success() {
@@ -147,24 +119,16 @@ class TransactionServiceTest {
         transaction.setToAccountId(UUID.randomUUID());
         transaction.setTimestamp(LocalDateTime.now());
 
-        TransactionResponseDTO dto = new TransactionResponseDTO(
-                transactionId.toString(),
-                transaction.getFromAccountId().toString(),
-                transaction.getToAccountId().toString(),
-                transaction.getAmount(),
-                transaction.getTimestamp()
-        );
-
         when(transactionRepository.findById(transactionId)).thenReturn(Optional.of(transaction));
-        when(transactionMapper.doDTO(transaction)).thenReturn(dto);
 
         // Act
-        TransactionResponseDTO result = transactionService.getTransactionId(transactionId);
+        Transaction result = transactionService.getTransactionById(transactionId);
 
         // Assert
         assertNotNull(result);
-        assertEquals(transactionId.toString(), result.getIdTransaction());
+        assertEquals(transactionId, result.getId());
     }
+
 
     @Test
     void testGetTransactionById_NotFound() {
@@ -175,7 +139,7 @@ class TransactionServiceTest {
         // Act & Assert
         TransactionValidationException exception = assertThrows(
                 TransactionValidationException.class,
-                () -> transactionService.getTransactionId(transactionId)
+                () -> transactionService.getTransactionById(transactionId)
         );
 
         assertEquals("Transação não encontrada com ID: " + transactionId, exception.getMessage());

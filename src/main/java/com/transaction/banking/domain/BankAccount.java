@@ -3,6 +3,7 @@ package com.transaction.banking.domain;
 import com.transaction.banking.exceptions.InsufficientFundsException;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.Id;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -20,6 +21,7 @@ import java.util.UUID;
 public class BankAccount {
 
     @Id
+    @GeneratedValue
     @Column(name = "account_id", columnDefinition = "BINARY(16)", nullable = false, updatable = false)
     private UUID accountId;
 
@@ -28,6 +30,11 @@ public class BankAccount {
 
     @Column(nullable = false)
     private BigDecimal amount;
+    public BankAccount(String holderName, BigDecimal amount) {
+        this.accountId = UUID.randomUUID();
+        this.holderName = holderName;
+        this.amount = amount;
+    }
 
     public void debit(BigDecimal amount){
         if(this.amount.compareTo(amount) < 0){

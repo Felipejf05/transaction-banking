@@ -30,7 +30,7 @@ public class TransactionMapper {
         return transaction;
     }
 
-    public TransactionResponseDTO doDTO(Transaction transaction) {
+    public TransactionResponseDTO toResponseDTO(Transaction transaction) {
         if (transaction == null) {
             return null;
         }
@@ -51,7 +51,7 @@ public class TransactionMapper {
         }
 
         return transactions.stream().filter(transaction -> transaction != null)
-                .map(this::doDTO)
+                .map(this::toResponseDTO)
                 .collect(Collectors.toList());
     }
 

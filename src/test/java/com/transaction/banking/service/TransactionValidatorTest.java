@@ -37,14 +37,14 @@ class TransactionValidatorTest {
 
     @Test
     void testValidateForTransfer_Success() {
-        assertDoesNotThrow(() -> validator.validateForTransfer(transaction, fromAccount, toAccount));
+        assertDoesNotThrow(() -> validator.validateForTransfer(fromAccount, toAccount, transaction.getAmount()));
     }
 
     @Test
     void testValidateForTransfer_NullAmount_ThrowsException() {
         transaction.setAmount(null);
         TransactionValidationException exception = assertThrows(TransactionValidationException.class,
-                () -> validator.validateForTransfer(transaction, fromAccount, toAccount));
+                () -> validator.validateForTransfer(fromAccount, toAccount, transaction.getAmount()));
         assertEquals("O valor da transferência deve ser maior que zero", exception.getMessage());
     }
 
@@ -52,7 +52,7 @@ class TransactionValidatorTest {
     void testValidateForTransfer_ZeroAmount_ThrowsException() {
         transaction.setAmount(BigDecimal.ZERO);
         TransactionValidationException exception = assertThrows(TransactionValidationException.class,
-                () -> validator.validateForTransfer(transaction, fromAccount, toAccount));
+                () -> validator.validateForTransfer(fromAccount, toAccount, transaction.getAmount()));
         assertEquals("O valor da transferência deve ser maior que zero", exception.getMessage());
     }
 
@@ -60,15 +60,14 @@ class TransactionValidatorTest {
     void testValidateForTransfer_NegativeAmount_ThrowsException() {
         transaction.setAmount(BigDecimal.valueOf(-1));
         TransactionValidationException exception = assertThrows(TransactionValidationException.class,
-                () -> validator.validateForTransfer(transaction, fromAccount, toAccount));
+                () -> validator.validateForTransfer(fromAccount, toAccount, transaction.getAmount()));
         assertEquals("O valor da transferência deve ser maior que zero", exception.getMessage());
     }
 
     @Test
     void testValidateForTransfer_SameAccount_ThrowsException() {
-        transaction.setToAccountId(fromAccount.getAccountId());
         TransactionValidationException exception = assertThrows(TransactionValidationException.class,
-                () -> validator.validateForTransfer(transaction, fromAccount, fromAccount));
+                () -> validator.validateForTransfer(fromAccount, fromAccount, transaction.getAmount())); // <-- Aqui usa fromAccount duas vezes
         assertEquals("Conta de origem e destino devem ser diferentes", exception.getMessage());
     }
 

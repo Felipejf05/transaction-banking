@@ -34,7 +34,7 @@ class BankAccountServiceTest {
         when(bankAccountRepository.save(ArgumentMatchers.any(BankAccount.class)))
                 .thenReturn(account);
 
-        BankAccount result = bankAccountService.createAccount(account);
+        BankAccount result = bankAccountService.save(account);
 
         assertNotNull(result);
         assertEquals("João", result.getHolderName());
