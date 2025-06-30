@@ -31,16 +31,17 @@ services:
     ports:
       - "3307:3306"
     environment:
-      MYSQL_DATABASE: "banking_db"
-      MYSQL_ROOT_PASSWORD: "root"
+      MYSQL_DATABASE: "${DB_NAME}"
+      MYSQL_ROOT_PASSWORD: "${DB_PASSWORD}"
+      MYSQL_ROOT_HOST: "%"
     volumes:
       - mysql_data:/var/lib/mysql
     healthcheck:
-      test: ["CMD-SHELL", "mysqladmin ping -uroot -proot || exit 1"]
-      interval: 15s
-      timeout: 10s
-      retries: 10
-      start_period: 180s
+      test: ["CMD-SHELL", "mysqladmin ping -h localhost -u${DB_USERNAME} -p${DB_PASSWORD} && mysql -h localhost -u${DB_USERNAME} -p${DB_PASSWORD} -e 'SELECT 1'"]
+      interval: 10s
+      timeout: 5s
+      retries: 20
+      start_period: 60s
 
   api-transaction:
     build: .
@@ -48,24 +49,25 @@ services:
     ports:
       - "8080:8080"
     environment:
-      DB_HOST: mysql
-      DB_PORT: 3306
-      DB_NAME: banking_db
-      DB_USERNAME: root
-      DB_PASSWORD: root
-      DB_DRIVER: com.mysql.cj.jdbc.Driver
+      DB_HOST: ${DB_HOST}
+      DB_PORT: ${DB_PORT}
+      DB_NAME: ${DB_NAME}
+      DB_USERNAME: ${DB_USERNAME}
+      DB_PASSWORD: ${DB_PASSWORD}
+      DB_DRIVER: ${DB_DRIVER}
 
-      SPRING_DATASOURCE_URL: jdbc:mysql://mysql:3306/banking_db?useSSL=false&serverTimezone=America/Sao_Paulo&allowPublicKeyRetrieval=true
-      SPRING_DATASOURCE_USERNAME: root
-      SPRING_DATASOURCE_PASSWORD: root
-      SPRING_DATASOURCE_DRIVER_CLASS_NAME: com.mysql.cj.jdbc.Driver
+      SPRING_DATASOURCE_URL: jdbc:mysql://${DB_HOST}:${DB_PORT}/${DB_NAME}?useSSL=false&serverTimezone=America/Sao_Paulo&allowPublicKeyRetrieval=true&createDatabaseIfNotExist=true
+      SPRING_DATASOURCE_USERNAME: ${DB_USERNAME}
+      SPRING_DATASOURCE_PASSWORD: ${DB_PASSWORD}
+      SPRING_DATASOURCE_DRIVER_CLASS_NAME: ${DB_DRIVER}
 
-      SPRING_JPA_HIBERNATE_DDL_AUTO: update
-      SPRING_JPA_SHOW_SQL: true
-      SPRING_JPA_DATABASE_PLATFORM: org.hibernate.dialect.MySQL8Dialect
+      SPRING_JPA_HIBERNATE_DDL_AUTO: ${JPA_DDL_AUTO}
+      SPRING_JPA_SHOW_SQL: ${JPA_SHOW_SQL}
+      SPRING_JPA_DATABASE_PLATFORM: ${JPA_DIALECT}
 
       SPRING_KAFKA_BOOTSTRAP_SERVERS: kafka:29092
 
+    restart: on-failure
     depends_on:
       kafka:
         condition: service_started
