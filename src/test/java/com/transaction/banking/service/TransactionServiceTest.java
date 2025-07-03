@@ -5,6 +5,7 @@ import com.transaction.banking.domain.Transaction;
 import com.transaction.banking.dto.request.TransactionRequestDTO;
 import com.transaction.banking.enums.TransactionStatus;
 import com.transaction.banking.exceptions.TransactionValidationException;
+import com.transaction.banking.kafka.producer.TransactionEventPublisherService;
 import com.transaction.banking.repository.TransactionRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -30,16 +31,19 @@ class TransactionServiceTest {
     private TransactionValidator transactionValidator;
     private BankAccountService bankAccountService;
     private TransactionService transactionService;
+    private TransactionEventPublisherService transactionEventPublisherService;
 
     @BeforeEach
     void setUp() {
         transactionRepository = mock(TransactionRepository.class);
         transactionValidator = mock(TransactionValidator.class);
         bankAccountService = mock(BankAccountService.class);
+        transactionEventPublisherService = mock(TransactionEventPublisherService.class);
         transactionService = new TransactionService(
                 transactionRepository,
                 transactionValidator,
-                bankAccountService
+                bankAccountService,
+                transactionEventPublisherService
         );
     }
 
